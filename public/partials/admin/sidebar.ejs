@@ -1,0 +1,99 @@
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="#" class="brand-link brand-link navbar-dark">
+        <!-- <img src="logo.png" alt="AdminLTE Logo" class="brand-image "
+             style="opacity: .8"> -->
+        <span class="brand-text font-weight-light text-light text-center"><small> Online Hotel Reservation System</small> </span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+    <div class="user-panel text-center pr-4">
+            <div class="image">
+            <!-- <img src="../../dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image"> -->
+            </div>
+            <div class="info ">
+            <a href="#" class="d-block">ADMIN</a>
+            </div>
+        </div>
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+               
+               
+                      
+
+                        <li class="nav-item">
+                            <a href="<%= process.env.URL_ADMIN %>dashboard" class="nav-link">
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>
+                                    Dashboard
+                                </p>
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a href="<%= process.env.URL_ADMIN %>reservation" class="nav-link">
+                                <i class="nav-icon fas fa-calendar-check"></i>
+                                <p>
+                                    Reservation
+                                </p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                        <a href="<%= process.env.URL_ADMIN %>checked-in" class="nav-link">
+                                <i class="nav-icon fas fa-user-check"></i>
+                                <p>
+                                    Checked In
+                                </p>
+                            </a>
+                        </li>
+
+                        <!-- <li class="nav-item">
+                        <a href="" class="nav-link">
+                                <i class="nav-icon fas fa-bed"></i>
+                                <p>
+                                    Rooms
+                                </p>
+                            </a>
+                        </li> -->
+
+                        <li class="nav-item has-treeview ">
+                            <a href="" class="nav-link">
+                              <i class="nav-icon fas fa-bed"></i>
+                              <p>
+                                Room Management
+                              
+                              </p>
+                            </a>
+                            <ul class="nav nav-treeview" style="display: block;">
+                              <li class="nav-item">
+                                <a href="<%= process.env.URL_ADMIN %>room-size" class="nav-link">
+                                  <i class="far fa-circle nav-icon"></i>
+                                  <p>Room Size</p>
+                                </a>
+                              </li>
+                              <li class="nav-item">
+                                <a href="<%= process.env.URL_ADMIN %>room" class="nav-link">
+                                  <i class="far fa-circle nav-icon"></i>
+                                  <p>Rooms</p>
+                                </a>
+                              </li>
+                            </ul>
+                          </li>
+                     
+
+                <li class="nav-header"></li>
+                <li class="nav-item">
+                    <a href="<%= process.env.DOMAIN %>" class="nav-link">
+                        <i class="nav-icon fas fa-door-open"> </i>
+                        <p>Log Out</p>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+</aside>

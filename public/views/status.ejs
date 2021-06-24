@@ -1,0 +1,85 @@
+<%- include('../partials/header.ejs') %>
+
+
+
+
+
+<section class="aboutus-section spad">
+<div class="container">
+<div class="row">
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-header">
+            Customers Reservation Status
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Room Size</th>
+                    <th scope="col">Room Qty</th>
+                    <th scope="col">Check-In</th>
+                    <th scope="col">Check-Out</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Date Posted</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    <% for(var i = 0; i< data.length; i++) { %>
+                        <tr>
+                            <td><%= data[i].customer %></td>
+                            <td><%= data[i].room_size_name %></td>
+                            <td><%= data[i].room_qty %></td>
+                            <td><%= data[i].check_in_date %></td>
+                            <td><%= data[i].check_out_date %></td>
+                            
+                        
+                            <% if(data[i].status == "Pending") { %>
+                                <td class="text-center"><span class="badge badge-warning">Pending</span></td>
+                                
+                                <%}  else if (data[i].status == "Approved" ) { %>
+                                    <td class="text-center"><span class="badge badge-success">Approved</span></td>      
+                                <%} else { %>
+                                        <td class="text-center"><span class="badge badge-danger">Pending</span></td>      
+                                <% } %>
+                            
+                            <td><%= data[i].date_posted %></td>
+  
+                          </tr>
+  
+                      <% } %>   
+             
+                </tbody>
+              </table>
+
+        </div>
+
+    </div>
+</div>
+
+</div>
+</div>
+</section>
+
+
+
+
+<%- include('../partials/footer.ejs') %>
+<script>
+    $("#check").click(function (e) { 
+        e.preventDefault();
+        //  $("#date-in").val()
+        //  $("#date-out").val()
+        console.log($("#date-in").val())
+        console.log($("#date-out").val())
+        console.log($("#room_size").val())
+        console.log($("#room_number").val())
+         $("#room_size").val()
+         $("#room_number").val()
+         location.href = '/rooms?in='+$("#date-in").val()+'&out='+$("#date-out").val()+'&size='+$("#room_size").val()+'&number='+$("#room_number").val()
+        
+    });
+</script>
+
+

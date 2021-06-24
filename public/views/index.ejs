@@ -1,0 +1,119 @@
+<%- include('../partials/header.ejs') %>
+
+
+<section class="hero-section">
+<div class="container">
+<div class="row">
+<div class="col-lg-6">
+<div class="hero-text">
+<h1>FB Hotel & Convention Center</h1>
+<p>When traveling to South Cotabato or Koronadal City, there is no need to worry about finding a place to stay. There are hotels and accommodation establishments to choose from depending on your needs and budget.</p>
+
+</div>
+</div>
+<div class="col-xl-4 col-lg-5 offset-xl-2 offset-lg-1">
+<div class="booking-form">
+<h3>Booking Your Hotel</h3>
+<form action="#">
+<div class="check-date">
+<label for="date-in">Check In:</label>
+<input type="text" class="date-input" id="date-in">
+<i class="icon_calendar"></i>
+</div>
+<div class="check-date">
+<label for="date-out">Check Out:</label>
+<input type="text" class="date-input" id="date-out">
+<i class="icon_calendar"></i>
+</div>
+<div class="select-option">
+<label for="guest">Room Size:</label>
+<select id="room_size" required>
+    <option value=""></option>
+    <% if(data.length) { %>
+      <% for(var i = 0; i< data.length; i++) { %>
+       <option value="<%= data[i].room_type_id %>"><%= data[i].room_size_name %></option>
+        <%}%>
+    <%}%>
+</select>
+</div>
+<div class="select-option">
+<label for="room">Room:</label>
+
+ <input type="number" class="form-control" id="room_number">
+</div>
+<button type="button" id="check">Check Availability</button>
+</form>
+</div>
+</div>
+</div>
+</div>
+<div class="hero-slider owl-carousel ">
+<div class="hs-item set-bg" data-setbg="../sona/ors-img/fb-hotel.jpg"></div>
+<div class="hs-item set-bg" data-setbg="../sona/ors-img/entrance.jpg"></div>
+<div class="hs-item set-bg" data-setbg="../sona/ors-img/entrance1.jpg"></div>
+</div>
+</section>
+
+
+<section class="aboutus-section spad">
+<div class="container">
+<div class="row">
+<div class="col-lg-6">
+<div class="about-text">
+<div class="section-title">
+<span>More About Us</span>
+</div>
+<p class="f-para">When visiting Koronadal City, you'll feel right at home at <strong >FB Hotel and Convention Center</strong>, which offers quality accommodation and great service. Only 2.6 km from the city center, the hotel's strategic location ensures that guests can quickly and easily reach many local points of interest. With its convenient location, the hotel offers easy access to the city's must-see destinations.</p>
+<p class="s-para">At <strong >FB Hotel and Convention Center</strong>, the excellent service and superior facilities make for an unforgettable stay. To name a few of the hotel's facilities, there are free Wi-Fi in all rooms, 24-hour security, car power charging station, daily housekeeping, wheelchair accessible.
+</p>
+</div>
+</div>
+<div class="col-lg-6">
+<div class="about-pic">
+<div class="row">
+<div class="col-sm-6">
+<img src="../sona/ors-img/lobby.jpg" alt="">
+</div>
+<div class="col-sm-6">
+<img src="../sona/ors-img/lobby1.jpg" alt="">
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+
+
+
+<%- include('../partials/footer.ejs') %>
+<script>
+    $("#check").click(function (e) { 
+        e.preventDefault();
+        //  $("#date-in").val()
+        //  $("#date-out").val()
+        console.log($("#date-in").val())
+        console.log($("#date-out").val())
+        console.log($("#room_size").val())
+        console.log($("#room_number").val())
+        
+        if($("#date-in").val() == "" || $("#date-out").val() == "" || $("#room_size").val() == "" || $("#room_number").val() == ""){
+            alert("Fill out empty fields")
+        } 
+        else if($("#date-in").val() > $("#date-out").val()){
+            alert("Date Selected is not Valid")
+        }
+        else if($("#date-out").val() < $("#date-in").val()){
+            alert("Date Selected is not Valid")
+        }else if($("#date-in").val() === $("#date-out").val()){
+            alert("Date Selected is not Valid");
+        }
+        else{
+            location.href = '/rooms?in='+$("#date-in").val()+'&out='+$("#date-out").val()+'&size='+$("#room_size").val()+'&number='+$("#room_number").val()
+        }
+        
+    });
+</script>
+
+
