@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.2
+-- version 5.0.4
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 20, 2021 at 12:51 PM
--- Server version: 10.4.14-MariaDB
--- PHP Version: 7.3.21
+-- Generation Time: Jun 24, 2021 at 02:37 AM
+-- Server version: 10.4.17-MariaDB
+-- PHP Version: 7.3.25
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -34,6 +34,42 @@ CREATE TABLE `accounts` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `check_in`
+--
+
+CREATE TABLE `check_in` (
+  `check_in_id` int(11) NOT NULL,
+  `customer_id` int(11) DEFAULT NULL,
+  `reservation_id` int(11) DEFAULT NULL,
+  `is_paid` int(1) DEFAULT 0,
+  `is_assigned` int(1) NOT NULL DEFAULT 0,
+  `total_rate` double NOT NULL,
+  `date_approved` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `check_in_list`
+-- (See below for the actual view)
+--
+CREATE TABLE `check_in_list` (
+`check_in_id` int(11)
+,`reservation_id` int(11)
+,`customer_id` int(11)
+,`customer_name` text
+,`phone_num` varchar(255)
+,`is_paid` int(1)
+,`is_assign` int(1)
+,`total_rate` double
+,`date_approved` timestamp
+,`room_size` int(11)
+,`room_qty` int(11)
+);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `customers`
 --
 
@@ -50,15 +86,6 @@ CREATE TABLE `customers` (
   `bank_account_name` varchar(255) DEFAULT NULL,
   `gcash` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `customers`
---
-
-INSERT INTO `customers` (`customer_id`, `firstname`, `middlename`, `lastname`, `address`, `dob`, `phone_num`, `bank_account_num`, `bank_name`, `bank_account_name`, `gcash`) VALUES
-(1, 'camela', 'bal', 'eds', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(2, 'cams', 'bals', 'eds', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(3, 'Camela', 'Bals', 'Eden', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -87,15 +114,6 @@ CREATE TABLE `reservations` (
   `status` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `reservations`
---
-
-INSERT INTO `reservations` (`reservation_id`, `customer_id`, `room_type`, `room_qty`, `check_in_date`, `check_out_date`, `status`, `created_at`) VALUES
-(1, 1, 1, 2, '2021-05-15', '2021-05-15', 'Pending', '2021-05-15 01:54:09'),
-(2, 2, 1, 2, '2021-05-16', '2021-05-16', 'Pending', '2021-05-15 02:07:55'),
-(3, 3, 1, 2, '2021-05-17', '2021-05-17', 'Pending', '2021-05-15 02:50:59');
 
 -- --------------------------------------------------------
 
@@ -126,31 +144,18 @@ CREATE TABLE `rooms` (
   `is_available` bit(1) NOT NULL DEFAULT b'1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- --------------------------------------------------------
+
 --
--- Dumping data for table `rooms`
+-- Table structure for table `room_assigned`
 --
 
-INSERT INTO `rooms` (`room_id`, `room_num`, `room_type_id`, `is_available`) VALUES
-(1, NULL, 1, b'1'),
-(2, NULL, 1, b'1'),
-(3, NULL, 1, b'1'),
-(4, NULL, 1, b'1'),
-(5, NULL, 1, b'1'),
-(6, NULL, 1, b'1'),
-(7, NULL, 1, b'1'),
-(8, NULL, 1, b'1'),
-(9, NULL, 1, b'1'),
-(10, NULL, 1, b'1'),
-(11, NULL, 1, b'1'),
-(12, NULL, 1, b'1'),
-(13, NULL, 1, b'1'),
-(14, NULL, 1, b'1'),
-(15, NULL, 1, b'1'),
-(16, NULL, 1, b'1'),
-(17, NULL, 1, b'1'),
-(18, NULL, 1, b'1'),
-(19, NULL, 1, b'1'),
-(20, NULL, 1, b'1');
+CREATE TABLE `room_assigned` (
+  `room_assigned_id` int(11) NOT NULL,
+  `room_size_id` int(11) DEFAULT NULL,
+  `room_id` int(11) DEFAULT NULL,
+  `check_in_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -166,15 +171,36 @@ CREATE TABLE `room_size` (
   `description` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `room_size`
---
+-- --------------------------------------------------------
 
-INSERT INTO `room_size` (`room_type_id`, `room_size_name`, `rate`, `pic`, `description`) VALUES
-(1, 'Deluxe Twin', 100, '1621042951658.jpg', 'good for 2 people'),
-(2, 'ordinary', 1000, '1621045837722.jpg', 'good for two'),
-(3, 'King size ', 2000, '1621047134452.jpg', 'good for family'),
-(4, 'superior room', 1000, '1621047478511.jpg', 'good for three');
+--
+-- Stand-in structure for view `vw_reservation`
+-- (See below for the actual view)
+--
+CREATE TABLE `vw_reservation` (
+`reservation_id` int(11)
+,`room_qty` int(11)
+,`check_in_date` date
+,`check_out_date` date
+,`customer_id` int(11)
+,`customer_name` text
+,`address` varchar(255)
+,`phone_num` varchar(255)
+,`room_type_id` int(11)
+,`room_size_name` varchar(255)
+,`rate` double
+,`status` varchar(255)
+,`date_posted` varchar(21)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `check_in_list`
+--
+DROP TABLE IF EXISTS `check_in_list`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `check_in_list`  AS SELECT `ci`.`check_in_id` AS `check_in_id`, `r`.`reservation_id` AS `reservation_id`, `c`.`customer_id` AS `customer_id`, concat(`c`.`firstname`,' ',`c`.`middlename`,' ',`c`.`lastname`) AS `customer_name`, `c`.`phone_num` AS `phone_num`, `ci`.`is_paid` AS `is_paid`, `ci`.`is_assigned` AS `is_assign`, `ci`.`total_rate` AS `total_rate`, `ci`.`date_approved` AS `date_approved`, `r`.`room_type` AS `room_size`, `r`.`room_qty` AS `room_qty` FROM ((`check_in` `ci` join `reservations` `r` on(`ci`.`reservation_id` = `r`.`reservation_id`)) join `customers` `c` on(`ci`.`customer_id` = `c`.`customer_id`)) ;
 
 -- --------------------------------------------------------
 
@@ -183,7 +209,16 @@ INSERT INTO `room_size` (`room_type_id`, `room_size_name`, `rate`, `pic`, `descr
 --
 DROP TABLE IF EXISTS `reservation_list`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `reservation_list`  AS  select concat(`c`.`firstname`,' ',`c`.`middlename`,' ',`c`.`lastname`) AS `customer`,`rs`.`room_size_name` AS `room_size_name`,`r`.`room_qty` AS `room_qty`,`r`.`check_in_date` AS `check_in_date`,`r`.`check_out_date` AS `check_out_date`,`r`.`created_at` AS `created_at`,`r`.`status` AS `status` from ((`reservations` `r` join `customers` `c` on(`r`.`customer_id` = `c`.`customer_id`)) join `room_size` `rs` on(`r`.`room_type` = `rs`.`room_type_id`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `reservation_list`  AS SELECT concat(`c`.`firstname`,' ',`c`.`middlename`,' ',`c`.`lastname`) AS `customer`, `rs`.`room_size_name` AS `room_size_name`, `r`.`room_qty` AS `room_qty`, `r`.`check_in_date` AS `check_in_date`, `r`.`check_out_date` AS `check_out_date`, `r`.`created_at` AS `created_at`, `r`.`status` AS `status` FROM ((`reservations` `r` join `customers` `c` on(`r`.`customer_id` = `c`.`customer_id`)) join `room_size` `rs` on(`r`.`room_type` = `rs`.`room_type_id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `vw_reservation`
+--
+DROP TABLE IF EXISTS `vw_reservation`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_reservation`  AS SELECT `r`.`reservation_id` AS `reservation_id`, `r`.`room_qty` AS `room_qty`, `r`.`check_in_date` AS `check_in_date`, `r`.`check_out_date` AS `check_out_date`, `c`.`customer_id` AS `customer_id`, concat(`c`.`firstname`,' ',`c`.`middlename`,' ',`c`.`lastname`) AS `customer_name`, `c`.`address` AS `address`, `c`.`phone_num` AS `phone_num`, `rs`.`room_type_id` AS `room_type_id`, `rs`.`room_size_name` AS `room_size_name`, `rs`.`rate` AS `rate`, `r`.`status` AS `status`, date_format(`r`.`created_at`,'%d/%m/%Y %H:%i') AS `date_posted` FROM ((`reservations` `r` join `customers` `c` on(`r`.`customer_id` = `c`.`customer_id`)) join `room_size` `rs` on(`r`.`room_type` = `rs`.`room_type_id`)) ;
 
 --
 -- Indexes for dumped tables
@@ -194,6 +229,12 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 ALTER TABLE `accounts`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `check_in`
+--
+ALTER TABLE `check_in`
+  ADD PRIMARY KEY (`check_in_id`);
 
 --
 -- Indexes for table `customers`
@@ -220,6 +261,12 @@ ALTER TABLE `rooms`
   ADD PRIMARY KEY (`room_id`);
 
 --
+-- Indexes for table `room_assigned`
+--
+ALTER TABLE `room_assigned`
+  ADD PRIMARY KEY (`room_assigned_id`);
+
+--
 -- Indexes for table `room_size`
 --
 ALTER TABLE `room_size`
@@ -236,10 +283,16 @@ ALTER TABLE `accounts`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `check_in`
+--
+ALTER TABLE `check_in`
+  MODIFY `check_in_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `payments`
@@ -251,19 +304,25 @@ ALTER TABLE `payments`
 -- AUTO_INCREMENT for table `reservations`
 --
 ALTER TABLE `reservations`
-  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `rooms`
 --
 ALTER TABLE `rooms`
-  MODIFY `room_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `room_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `room_assigned`
+--
+ALTER TABLE `room_assigned`
+  MODIFY `room_assigned_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `room_size`
 --
 ALTER TABLE `room_size`
-  MODIFY `room_type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `room_type_id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
