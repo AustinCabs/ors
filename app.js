@@ -8,7 +8,7 @@ var multer  = require('multer')
 
 
 const app = express()
-const port = 5000
+const port = 3000
 
 //normal mysql  connect
 const conn=mysql.createConnection({
