@@ -144,8 +144,21 @@ app.get('/login', (req, res) => {
 })  
 
 //dashboard
-app.get('/admin/dashboard', (req, res) => {
-    res.render('admin/index', {  })
+app.get('/admin/dashboard',async (req, res) => {
+
+    let q1 = `SELECT count(*) as rooms FROM rooms`;
+    const s1 = await sequelize.query(q1, { type: QueryTypes.SELECT })
+
+    let q2 = `SELECT count(*) as customers  FROM customers`;
+    const s2 = await sequelize.query(q2, { type: QueryTypes.SELECT })
+
+    let q3 = `SELECT count(*) as reservations  FROM reservations`;
+    const s3 = await sequelize.query(q3, { type: QueryTypes.SELECT })
+
+    let q4 = `SELECT count(*) as check_in  FROM check_in`;
+    const s4 = await sequelize.query(q4, { type: QueryTypes.SELECT })
+
+    res.render('admin/index', {s1,s2,s3,s4  })
 })
 
 //reservation
