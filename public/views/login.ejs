@@ -29,9 +29,9 @@
     <div class="card-body login-card-body">
       <p class="login-box-msg">Online Hotel Reservation System</p>
 
-      <form id="" >
+      <form id="login" >
         <div class="input-group mb-3">
-          <input type="text" class="form-control" id="user" placeholder="Username">
+          <input type="text" class="form-control" name="user" id="user" required placeholder="Username">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-user"></span>
@@ -39,18 +39,23 @@
           </div>
         </div>
         <div class="input-group mb-3">
-          <input type="password" class="form-control" id=pass placeholder="Password">
+          <input type="password" class="form-control" name="pass" id=pass required placeholder="Password">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
             </div>
           </div>
         </div>
+        <div class="input-group mb-3">
+          <div class="col-12 mt-3">
+            <div class="g-recaptcha" data-sitekey="6Lftcn0gAAAAAOIXGkFFBuO_Xz9cZUSyS37JNKI1"></div>
+          </div>
+        </div>
         <div class="row d-flex justify-content-end ">
  
           <!-- /.col -->
           <div class="col-4 ">
-            <button type="button" id="login" class="btn btn-primary btn-block">Sign In</button>
+            <button type="submit" id="login" class="btn btn-primary btn-block">Sign In</button>
           </div>
           <!-- /.col -->
         </div>
@@ -68,17 +73,72 @@
 <script src="../AdminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
 <script src="../AdminLTE/dist/js/adminlte.min.js"></script>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script>
-  $("#login").click(function (e) { 
+  $("#login").submit(function (e) { 
     e.preventDefault();
     //let form = $(this);
-     
-    if ($("#user").val() == "admin" && $("#pass").val() == "admin") {
-       alert("Successfully Login");
-       window.location.href = "/admin/dashboard";
-     }else{
-       alert("Account Does not exist !!")
-     }
+    const data = Object.fromEntries(new FormData(e.target).entries());
+    console.log(data)
+    
+   // console.log(data.g-recaptcha-response)
+    // return
+      // fetch('/admin/auth', {
+      //     method: 'POST',
+      //     headers: {
+      //       'Accept': 'application/json, text/plain, */*',
+      //       'Content-Type': 'application/json'
+      //     },
+      //     body: JSON.stringify(data)
+      //   }).then(res => {
+      //     // console.log(res);
+      //     // console.log(res.json());
+      //     // return  
+      //     res.json();
+      //     // if (res.response) {
+      //  res.response
+      //     // }else{
+      //     //   alert("Account Does not exist !!")
+      //     // }
+      //   }).then(data => console.log(data.response));
+
+        $.ajax({
+          type: "POST",
+          url: "/admin/auth",
+          data: data,
+          dataType: "json",
+          success: function (res) {
+            console.log(res);
+            console.log(res.response);
+             
+            if (res.response == true) {
+              alert("Successfully Login");
+              window.location.href = "/admin/dashboard";
+       
+            } else {
+              alert("Something went wrong try refresh this page or check your username and password");
+            }
+          }
+        });
+
+    // if ($("#user").val() == "admin" && $("#pass").val() == "admin") {
+      
+    //   fetch('/auth', {
+    //       method: 'POST',
+    //       headers: {
+    //         'Accept': 'application/json, text/plain, */*',
+    //         'Content-Type': 'application/json'
+    //       },
+    //       body: JSON.stringify({user: 7,  pass: 'Some string: &=&'})
+    //     }).then(res => res.json())
+    //       .then(res => console.log(res));
+
+    //    alert("Successfully Login");
+       
+    //    window.location.href = "/admin/dashboard";
+    //  }else{
+    //    alert("Account Does not exist !!")
+    //  }
   });
 </script>
 </body>

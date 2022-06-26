@@ -5,8 +5,8 @@ const mysql = require('mysql');
 const path = require("path")
 require('dotenv').config()
 var multer  = require('multer')
-
-
+const fetch = require('isomorphic-fetch')
+const sessions = require('express-session');
 const app = express()
 const port = 3000
 
@@ -25,7 +25,6 @@ conn.connect(function(error){
 
 // connect using ORM sequelize
 const { Sequelize , QueryTypes } = require('sequelize');
-const { resolveAny } = require('dns');
 
 const sequelize = new Sequelize('ors', 'root', '', {
     host: 'localhost',
@@ -33,6 +32,24 @@ const sequelize = new Sequelize('ors', 'root', '', {
   });
 
 app.use(express.static('public'));
+
+// var app = express()
+// app.set('trust proxy', 1) // trust first proxy
+// app.use(session({
+//   secret: 'keyboard cat',
+//   resave: false,
+//   saveUninitialized: true,
+//   cookie: { secure: true,  maxAge: 60000 }
+// }))
+
+const oneDay = 1000 * 60 * 60 * 24;
+app.use(sessions({
+  secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
+  saveUninitialized:true,
+  cookie: { maxAge: oneDay },
+  resave: false
+}));
+
 //app.use(expressLayouts)
 
 // Set View's
@@ -141,43 +158,112 @@ app.get('/status', async (req, res) => {
 // admin
 app.get('/login', (req, res) => {
     res.render('login', {  })
+})
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.render('login', {  })
+})
+
+// admin
+app.post('/admin/auth', async (req, res) => {
+//    console.log(req.body);
+
+
+   if (req.body.user == "admin" && req.body.pass == "admin" && req.body['g-recaptcha-response'] != '') {
+        console.log(req.body.user);
+        console.log(req.body.pass);
+        console.log(req.body['g-recaptcha-response']);
+
+        const secretKey = '6Lftcn0gAAAAAEGmj7Q01JATd2AlVQ11qybd27-G'
+        const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${req.body['g-recaptcha-response']}`
+      
+        fetch(url, {
+          method: 'post',
+        })
+          .then((response) => response.json())
+          .then((google_response) => {
+            if (google_response.success == true) {
+
+                req.session.user = "power";
+
+                console.log("true goolgle responnse");
+                console.log(req.session.user);
+                
+                return res.send({ response: true  })
+            } else {
+                console.log("false goolgle responnse");
+              return res.send({ response: false })
+            }
+          })
+          .catch((error) => {
+            return res.json({ error })
+          })
+
+        //   console.log(req.session.user);
+    
+   }else{
+    return res.send({ response: false })
+   }
+   
+   
+//   return res.redirect('/admin/dashboard')
 })  
+
 
 //dashboard
 app.get('/admin/dashboard',async (req, res) => {
 
-    let q1 = `SELECT count(*) as rooms FROM rooms`;
-    const s1 = await sequelize.query(q1, { type: QueryTypes.SELECT })
+    console.log(req.session.user);  
+    if (req.session.user) {
+        let q1 = `SELECT count(*) as rooms FROM rooms`;
+        const s1 = await sequelize.query(q1, { type: QueryTypes.SELECT })
+    
+        let q2 = `SELECT count(*) as customers  FROM customers`;
+        const s2 = await sequelize.query(q2, { type: QueryTypes.SELECT })
+    
+        let q3 = `SELECT count(*) as reservations  FROM reservations`;
+        const s3 = await sequelize.query(q3, { type: QueryTypes.SELECT })
+    
+        let q4 = `SELECT count(*) as check_in  FROM check_in`;
+        const s4 = await sequelize.query(q4, { type: QueryTypes.SELECT })
+    
+        res.render('admin/index', {s1,s2,s3,s4  })
+        
+    }else{
+        res.send("Login First")
+    }
 
-    let q2 = `SELECT count(*) as customers  FROM customers`;
-    const s2 = await sequelize.query(q2, { type: QueryTypes.SELECT })
-
-    let q3 = `SELECT count(*) as reservations  FROM reservations`;
-    const s3 = await sequelize.query(q3, { type: QueryTypes.SELECT })
-
-    let q4 = `SELECT count(*) as check_in  FROM check_in`;
-    const s4 = await sequelize.query(q4, { type: QueryTypes.SELECT })
-
-    res.render('admin/index', {s1,s2,s3,s4  })
 })
 
 //reservation
 
 app.get('/admin/reservation', async (req, res) => {
-     let q = `SELECT * FROM vw_reservation`;
-    const select = await sequelize.query(q, { type: QueryTypes.SELECT })
-    console.log(select)
-    res.render('admin/reservation', { data:select})
+
+    if (req.session.user) {
+        let q = `SELECT * FROM vw_reservation`;
+       const select = await sequelize.query(q, { type: QueryTypes.SELECT })
+       console.log(select)
+       res.render('admin/reservation', { data:select})
+    }else{
+        res.send("Login First")
+    }
+
 })  
 
 //checked in
 app.get('/admin/checked-in', async (req, res) => {
     try {
 
+        if (req.session.user) {
         let q = `SELECT *, DATE_FORMAT(date_approved,'%d/%m/%Y %H:%i') as approved FROM check_in_list`;
         const select = await sequelize.query(q, { type: QueryTypes.SELECT })
         console.log(select)
         res.render('admin/checked_in', {data:select  })
+        }else{
+            res.send("Login First")
+        }
+
+    
 
     } catch (error) {
         console.log(error)
@@ -187,25 +273,38 @@ app.get('/admin/checked-in', async (req, res) => {
 //rooms size
 app.get('/admin/room-size', (req, res) => {
   //  res.render('admin/room_size', {  })
-    conn.query('SELECT * FROM room_size  ',function(err,rows)     {
- 
-        if(err) {
-            console.log(err)
-            // render to views/books/index.ejs
-            //res.render('/admin/room-size',{data:''});   
-        } else {
-            // render to views/books/index.ejs
-            console.log(rows)
-            res.render('admin/room_size',{data:rows});
-        }
 
-    });
+  if (req.session.user) {
+      conn.query('SELECT * FROM room_size  ',function(err,rows)     {
+   
+          if(err) {
+              console.log(err)
+              // render to views/books/index.ejs
+              //res.render('/admin/room-size',{data:''});   
+          } else {
+              // render to views/books/index.ejs
+              console.log(rows)
+              res.render('admin/room_size',{data:rows});
+          }
+  
+      });
+  }else{
+    res.send("Login First")
+}
+        
 }
 )  
 
 app.get("/admin/room-size-update/:type",async (req, res) => {
     try {
         //if (typeof req.params.type == "number") {
+            
+            // if (req.session.user = 1) {
+                    
+            // }else{
+            //     res.send("Login First")
+            // }
+            
             var id = req.params.type;
             console.log(typeof req.params.type,"183")
             console.log(req.params.type,"183")
@@ -213,7 +312,6 @@ app.get("/admin/room-size-update/:type",async (req, res) => {
             const a = await sequelize.query(`SELECT *  FROM room_size where room_type_id = ${id}`, { type: QueryTypes.SELECT })
         
             res.render("admin/room_size_update",{data : a});
-            
         //}
    
     } catch (error) {
@@ -269,38 +367,44 @@ app.post('/room-size/create', upload, function (req, res) {
  //room
  app.get('/admin/room', (req, res) => {
       
-     let data_select = []; 
-     let data_table = []; 
+    
+if (req.session.user) {
+        
+    let data_select = []; 
+    let data_table = []; 
 
-    conn.query('SELECT * FROM room_size ORDER BY room_type_id DESC  ',function(err,rows)     {
- 
-        if(err) {
-            console.log(err)
-            // render to views/books/index.ejs
-            //res.render('/admin/room-size',{data:''});   
-        } else {
-            // render to views/books/index.ejs
-            // res.render('admin/room',{data:rows});
-            data_select.push(rows);
-        //    console.log(data_select[0])
-          conn.query('SELECT room_id,room_size_name,description,rate,is_available FROM rooms r INNER JOIN  room_size  rs on r.room_type_id = rs.room_type_id',function(err,rows1)     {
- 
-            if(err) {
-                console.log(err)
-                // render to views/books/index.ejs
-                //res.render('/admin/room-size',{data:''});   
-            } else {
-                // render to views/books/index.ejs
-                 data_table.push(rows1);
-                 //console.log(data_table[0])
+   conn.query('SELECT * FROM room_size ORDER BY room_type_id DESC  ',function(err,rows)     {
 
-                 res.render('admin/room',{ data_select:data_select[0] , data_table:data_table[0] });
-            }
-           // data.table  = rows;
-        });
-        }
+       if(err) {
+           console.log(err)
+           // render to views/books/index.ejs
+           //res.render('/admin/room-size',{data:''});   
+       } else {
+           // render to views/books/index.ejs
+           // res.render('admin/room',{data:rows});
+           data_select.push(rows);
+       //    console.log(data_select[0])
+         conn.query('SELECT room_id,room_size_name,description,rate,is_available FROM rooms r INNER JOIN  room_size  rs on r.room_type_id = rs.room_type_id',function(err,rows1)     {
 
-    });
+           if(err) {
+               console.log(err)
+               // render to views/books/index.ejs
+               //res.render('/admin/room-size',{data:''});   
+           } else {
+               // render to views/books/index.ejs
+                data_table.push(rows1);
+                //console.log(data_table[0])
+
+                res.render('admin/room',{ data_select:data_select[0] , data_table:data_table[0] });
+           }
+          // data.table  = rows;
+       });
+       }
+
+   });
+}else{
+    res.send("Login First")
+}
 
     // conn.query('SELECT room_id,room_size_name,description,rate,is_available FROM rooms r INNER JOIN  room_size  rs on r.room_type_id = rs.room_type_id',function(err,rows)     {
  
